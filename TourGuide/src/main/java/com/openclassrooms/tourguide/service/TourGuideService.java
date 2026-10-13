@@ -7,14 +7,7 @@ import com.openclassrooms.tourguide.user.UserReward;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,7 +35,7 @@ public class TourGuideService {
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
 		this.gpsUtil = gpsUtil;
 		this.rewardsService = rewardsService;
-		
+
 		Locale.setDefault(Locale.US);
 
 		if (testMode) {
@@ -96,14 +89,13 @@ public class TourGuideService {
 	}
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-		List<Attraction> nearbyAttractions = new ArrayList<>();
-		for (Attraction attraction : gpsUtil.getAttractions()) {
-			if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-				nearbyAttractions.add(attraction);
-			}
-		}
-
-		return nearbyAttractions;
+		return gpsUtil.getAttractions().stream()
+				.sorted(Comparator.comparingDouble(
+						attraction->rewardsService.getDistance(attraction,visitedLocation.location)
+                )
+                )
+				.limit(5)
+				.collect(Collectors.toList());
 	}
 
 	private void addShutDownHook() {
@@ -115,9 +107,9 @@ public class TourGuideService {
 	}
 
 	/**********************************************************************************
-	 * 
+	 *
 	 * Methods Below: For Internal Testing
-	 * 
+	 *
 	 **********************************************************************************/
 	private static final String tripPricerApiKey = "test-server-api-key";
 	// Database connection will be used for external users, but for testing purposes
