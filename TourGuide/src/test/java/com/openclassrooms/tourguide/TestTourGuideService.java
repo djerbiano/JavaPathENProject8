@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.UUID;
 
+import com.openclassrooms.tourguide.dto.NearbyAttractionDTO;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -123,6 +124,24 @@ public class TestTourGuideService {
 		tourGuideService.tracker.stopTracking();
 
 		assertEquals(10, providers.size());
+	}
+	@Test
+	public void getNearByAttractionsDetails() {
+		GpsUtil gpsUtil = new GpsUtil();
+		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+		InternalTestHelper.setInternalUserNumber(0);
+		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+
+		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+
+		List<NearbyAttractionDTO> attractions = tourGuideService.getNearByAttractionsDetails(user);
+
+		tourGuideService.tracker.stopTracking();
+
+		assertEquals(5, attractions.size());
+		for (int i = 1; i < attractions.size(); i++) {
+			assertTrue(attractions.get(i - 1).getDistance() <= attractions.get(i).getDistance());
+		}
 	}
 
 }
