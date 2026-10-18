@@ -34,8 +34,8 @@ jobs:
       - name: Compiler
         run: mvn -B compile
 
-      - name: Lancer les tests (sans les tests de performance)
-        run: mvn -B test "-Dtest=!TestPerformance" -Dsurefire.failIfNoSpecifiedTests=false
+      - name: Lancer les tests
+        run: mvn -B test
 
       - name: Construire le jar
         run: mvn -B package -DskipTests
